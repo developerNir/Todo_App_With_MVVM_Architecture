@@ -39,7 +39,7 @@ public class LoginMainActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(LoginMainActivity.this).get(UserViewModel.class);
 
-        userViewModel.getMutableLiveData().observe(this, new Observer<UserData>() {
+        userViewModel.getLiveData().observe(this, new Observer<UserData>() {
             @Override
             public void onChanged(UserData userData) {
                 textView.setText(userData.getName()+"\n"+userData.getId());

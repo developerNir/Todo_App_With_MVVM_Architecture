@@ -32,18 +32,20 @@ public class UserRepository implements UserRepoInterface {
         return userRepository;
     }
 
+    public MutableLiveData<UserData> getLiveUserData(){
+        // live data return value in the ViewModel
+        return UserLiveData;
+    }
 
 
     @Override
-    public MutableLiveData<UserData> getUserInfo() {
+    public void getUserInfoFromApi(RegisterRequestBody registerRequestBody) {
 
         // live data instance create --------------------------
         if (UserLiveData == null){
             UserLiveData = new MutableLiveData<>();
         }
 
-
-        registerRequestBody = new RegisterRequestBody("nira","948375983","loveyoupal16@gmail.com");
 
 
 
@@ -58,6 +60,7 @@ public class UserRepository implements UserRepoInterface {
                  if (response.isSuccessful()){
                      registerModel = response.body();
                      userData = registerModel.getUser();
+                     // Live data post Value ------------------
                      UserLiveData.postValue(userData);
 
                  }
@@ -73,7 +76,5 @@ public class UserRepository implements UserRepoInterface {
         });
 
 
-
-        return UserLiveData;
     }
 }

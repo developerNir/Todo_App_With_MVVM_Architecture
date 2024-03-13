@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -66,40 +66,42 @@ public class MainActivity extends AppCompatActivity {
         emailInputLayout = findViewById(R.id.emailEditTextLayout);
 
 
-
+        // view model class Provider set ------------------------
+        userViewModel = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
 
 
 
         loginButton.setOnClickListener(view -> {
-            // input Value validation ----------------------
-//            if (TextUtils.isEmpty(name) && TextUtils.isEmpty(password) && TextUtils.isEmpty(email)){
-//                nameInputLayout.setError("Name is Required");
-//                passwordInputLayout.setError("password is Required");
-//                emailInputLayout.setError("email is Required");
-//            }else {
-//
-//            }
 
             String name = nameEdText.getText().toString();
             String password = passwordEdText.getText().toString();
             String email = emailEdText.getText().toString();
 
+            // input Value validation ----------------------
+            if (TextUtils.isEmpty(name) || TextUtils.isEmpty(password) || TextUtils.isEmpty(email)){
+                nameInputLayout.setError("Name is Required");
+                passwordInputLayout.setError("password is Required");
+                emailInputLayout.setError("email is Required");
+            }else {
+                nameInputLayout.setError(null);
+                passwordInputLayout.setError(null);
+                emailInputLayout.setError(null);
+
+                // Api request body Object create and name password and email set -----
+                registerRequestBody = new RegisterRequestBody(name, password, email);
+                // call view model create user Register method --------------------
+                userViewModel.createUserRegister(registerRequestBody);
+                // Ui Observer set Call and this Activity ui change ------------------
+                UiDataObserverSet();
+            }
+
             Log.d("myLog", "Input check "+name +" "+password+" "+email);
-            registerRequestBody = new RegisterRequestBody(name, password, email);
-//            registerRequestBody.setName(name);
-//            registerRequestBody.setPassword(password);
-//            registerRequestBody.setEmail(email);
-
-//            userViewModel = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
-//            userViewModel.getMutableLiveData(name, password, email).observe();
-
-
-
-
 
 
         });      // button end ----------
+
+
 
         loginPageTextBtn.setOnClickListener(view -> {
             startActivity(new Intent(MainActivity.this, LoginMainActivity.class));
@@ -107,38 +109,31 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        // view model class Provider set ------------------------
-        userViewModel = new ViewModelProvider(MainActivity.this).get(UserViewModel.class);
 
-        // view mode Observer set ------------------------
-        userViewModel.getMutableLiveData().observe(this, new Observer<UserData>() {
+    }
+
+
+
+    // =======================================================
+
+    public void UiDataObserverSet(){
+        // view mode Observer set ----------------------------
+        userViewModel.getLiveData().observe(this, new Observer<UserData>() {
             @Override
             public void onChanged(UserData userData) {
+                if (userData.getId().length() >0){
+                    textView.setText(userData.getName()+"\n"+userData.getOtp());
+                    Toast.makeText(MainActivity.this, "Register Success", Toast.LENGTH_SHORT).show();
 
-                Log.d("myLog", "onChanged: "+userData);
-                textView.setText(userData.getName()+"\n"+userData.getEmail());
-
-
+                }else {
+                    Toast.makeText(MainActivity.this, "Register Fail", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
+
+
+
+
 }

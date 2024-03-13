@@ -1,13 +1,12 @@
 package com.example.mytodoapp.Service.Reposetory;
 
-import androidx.lifecycle.MutableLiveData;
 
-import com.example.mytodoapp.Service.Model.UserData;
 
-import java.util.List;
+import com.example.mytodoapp.Service.Model.RegisterRequestBody;
+
 
 public interface UserRepoInterface {
 
-    public MutableLiveData<UserData> getUserInfo();
+    public void getUserInfoFromApi(RegisterRequestBody registerRequestBody);
 
 }

@@ -21,11 +21,17 @@ public class UserViewModel extends ViewModel {
         userRepository = UserRepository.getUserRepositoryInstance();
     }
 
-    public LiveData<UserData> getMutableLiveData(){
-
-        return userRepository.getUserInfo();
+    public void createUserRegister(RegisterRequestBody registerRequestBody){
+        // this is Api call method call from ViewModel class
+        userRepository.getUserInfoFromApi(registerRequestBody);
 
     }
+
+    public LiveData<UserData> getLiveData(){
+        // this is returnable Live data get from Repository -------
+        return userRepository.getLiveUserData();
+    }
+
 
 
 
