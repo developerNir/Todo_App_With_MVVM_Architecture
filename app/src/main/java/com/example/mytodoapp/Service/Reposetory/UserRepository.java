@@ -25,6 +25,7 @@ public class UserRepository implements UserRepoInterface {
     private RegisterModel registerModel;
     private UserData userData;
     private MutableLiveData<UserData> UserLiveData;
+    private MutableLiveData<RegisterModel> RegisterDataWithToke;
 
 
     public static UserRepository getUserRepositoryInstance(){
@@ -39,6 +40,11 @@ public class UserRepository implements UserRepoInterface {
         return UserLiveData;
     }
 
+    // with Token register ------------------------
+    public MutableLiveData<RegisterModel> getTokenRegisterData(){
+        return RegisterDataWithToke;
+    }
+
 
     @Override
     public void getUserInfoFromApi(RegisterRequestBody registerRequestBody) {
@@ -46,6 +52,11 @@ public class UserRepository implements UserRepoInterface {
         // live data instance create --------------------------
         if (UserLiveData == null){
             UserLiveData = new MutableLiveData<>();
+        }
+
+        // with token ----------Live Data---------------------
+        if (RegisterDataWithToke == null){
+            RegisterDataWithToke = new MutableLiveData<>();
         }
 
 
@@ -61,6 +72,7 @@ public class UserRepository implements UserRepoInterface {
             public void onResponse(Call<RegisterModel> call, Response<RegisterModel> response) {
                  if (response.isSuccessful()){
                      registerModel = response.body();
+                     RegisterDataWithToke.postValue(registerModel);
                      userData = registerModel.getUser();
                      // Live data post Value ------------------
                      UserLiveData.postValue(userData);

@@ -16,14 +16,19 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.mytodoapp.R;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
+import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.ViewModel.UserViewModel;
 
 import java.util.List;
 
 public class AppMainBody extends AppCompatActivity {
 
+
     TextView textView;
     UserViewModel userViewModel;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +44,13 @@ public class AppMainBody extends AppCompatActivity {
 
 
         textView = findViewById(R.id.textView3);
+
+
+        // view Model Provider set -------------------------------------
         userViewModel = new ViewModelProvider(AppMainBody.this).get(UserViewModel.class);
 
 
+        // Live data check and Null save ----------------------------
         LiveData<List<LoginUser>> loginLiveData = userViewModel.getLoginLiveData();
         if (loginLiveData != null) {
             userViewModel.getLoginLiveData().observe(this, new Observer<List<LoginUser>>() {
@@ -54,6 +63,37 @@ public class AppMainBody extends AppCompatActivity {
         }else {
             Toast.makeText(this, "Live data is null", Toast.LENGTH_SHORT).show();
         }
+
+
+        // get Token form View model --------------------------------
+        LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
+        if (tokenAndRegisterData !=null){
+            userViewModel.getTokenWithRegister().observe(this, new Observer<RegisterModel>() {
+                @Override
+                public void onChanged(RegisterModel registerModel) {
+
+                    if (registerModel.getSuccess()){
+                        textView.setText(registerModel.getToken());
+                    }
+
+
+
+                }
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
