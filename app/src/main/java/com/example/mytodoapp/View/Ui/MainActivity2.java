@@ -1,6 +1,7 @@
 package com.example.mytodoapp.View.Ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -14,6 +15,9 @@ import com.example.mytodoapp.R;
 
 public class MainActivity2 extends AppCompatActivity {
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    String AuthCheck;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,12 +29,23 @@ public class MainActivity2 extends AppCompatActivity {
             return insets;
         });
 
+
+        sharedPreferences = getSharedPreferences(getString(R.string.app_name),MODE_PRIVATE);
+        AuthCheck = sharedPreferences.getString("token", null);
+
+
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent myIntent = new Intent(MainActivity2.this, MainActivity.class);
-                startActivity(myIntent);
-                finish();
+                if (AuthCheck == null) {
+                    Intent myIntent = new Intent(MainActivity2.this, MainActivity.class);
+                    startActivity(myIntent);
+                    finish();
+                }else {
+                    startActivity(new Intent(MainActivity2.this, AppMainBody.class));
+                    finish();
+                }
             }
         }, 3000);
 

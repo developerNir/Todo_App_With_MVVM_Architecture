@@ -1,5 +1,6 @@
 package com.example.mytodoapp.View.Ui;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -26,7 +27,8 @@ public class AppMainBody extends AppCompatActivity {
 
     TextView textView;
     UserViewModel userViewModel;
-
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
 
 
 
@@ -44,6 +46,8 @@ public class AppMainBody extends AppCompatActivity {
 
 
         textView = findViewById(R.id.textView3);
+        // introduce SharePreferences ---------------------------
+        sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
 
 
         // view Model Provider set -------------------------------------
@@ -74,6 +78,9 @@ public class AppMainBody extends AppCompatActivity {
 
                     if (registerModel.getSuccess()){
                         textView.setText(registerModel.getToken());
+                        editor = sharedPreferences.edit();
+                        editor.putString("token", registerModel.getToken());
+                        editor.apply();
                     }
 
 
@@ -84,7 +91,9 @@ public class AppMainBody extends AppCompatActivity {
 
 
 
+        String token = sharedPreferences.getString("token",null);
 
+        textView.setText(token);
 
 
 
