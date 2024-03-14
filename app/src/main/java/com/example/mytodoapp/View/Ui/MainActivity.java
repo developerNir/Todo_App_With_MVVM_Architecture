@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -29,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private UserViewModel userViewModel;
     RegisterRequestBody registerRequestBody;
-    TextView textView, loginPageTextBtn;
+    TextView loginPageTextBtn;
+    ProgressBar progressBar;
     Button loginButton;
     TextInputLayout nameInputLayout, passwordInputLayout, emailInputLayout;
     TextInputEditText nameEdText, passwordEdText, emailEdText;
@@ -48,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        textView = findViewById(R.id.textView);
+        progressBar = findViewById(R.id.progress_circular);
 
         // login view introduce    --------------------------
 
@@ -79,11 +83,14 @@ public class MainActivity extends AppCompatActivity {
             String email = emailEdText.getText().toString();
 
             // input Value validation ----------------------
-            if (TextUtils.isEmpty(name) || TextUtils.isEmpty(password) || TextUtils.isEmpty(email)){
+            if (TextUtils.isEmpty(name)){
                 nameInputLayout.setError("Name is Required");
+            } else if (TextUtils.isEmpty(password)) {
                 passwordInputLayout.setError("password is Required");
+            } else if (TextUtils.isEmpty(email)) {
                 emailInputLayout.setError("email is Required");
-            }else {
+            } else {
+                progressBar.setVisibility(View.VISIBLE);
                 nameInputLayout.setError(null);
                 passwordInputLayout.setError(null);
                 emailInputLayout.setError(null);
@@ -118,18 +125,31 @@ public class MainActivity extends AppCompatActivity {
 
     public void UiDataObserverSet(){
         // view mode Observer set ----------------------------
-        userViewModel.getLiveData().observe(this, new Observer<UserData>() {
-            @Override
-            public void onChanged(UserData userData) {
-                if (userData.getId().length() >0){
-                    textView.setText(userData.getName()+"\n"+userData.getOtp());
-                    Toast.makeText(MainActivity.this, "Register Success", Toast.LENGTH_SHORT).show();
+        // live data create a Variable ------------------------
+        LiveData<UserData> myLiveData = userViewModel.getLiveData();
+        // null pinter manage ------------------------------
+        if (myLiveData!=null) {
+            userViewModel.getLiveData().observe(this, new Observer<UserData>() {
+                @Override
+                public void onChanged(UserData userData) {
+                    progressBar.setVisibility(View.GONE);
+                    if (userData.getId().length() > 0) {
 
-                }else {
-                    Toast.makeText(MainActivity.this, "Register Fail", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Register Success", Toast.LENGTH_SHORT).show();
+                        // change Activity -----------------------------------------
+                        startActivity(new Intent(MainActivity.this, AppMainBody.class));
+                        // Activity finish method call ---------------------------
+                        finish();
+
+                    } else {
+                        emailInputLayout.setError("Invalid Email Please anther Email");
+                        Toast.makeText(MainActivity.this, "Register Fail", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        });
+            });
+        }else {
+            Toast.makeText(this, "live data is Null", Toast.LENGTH_SHORT).show();
+        }
 
     }
 

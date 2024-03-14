@@ -1,15 +1,18 @@
 package com.example.mytodoapp.Service.Reposetory;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
+import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
 import com.example.mytodoapp.Service.Model.UserData;
 import com.example.mytodoapp.Service.Network.ApiServices;
 import com.example.mytodoapp.Service.Network.RetrofitInstance;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,10 +22,9 @@ public class UserRepository implements UserRepoInterface {
 
 
     private static UserRepository userRepository;
-    private RegisterRequestBody registerRequestBody;
     private RegisterModel registerModel;
     private UserData userData;
-    private MutableLiveData UserLiveData;
+    private MutableLiveData<UserData> UserLiveData;
 
 
     public static UserRepository getUserRepositoryInstance(){
@@ -62,9 +64,7 @@ public class UserRepository implements UserRepoInterface {
                      userData = registerModel.getUser();
                      // Live data post Value ------------------
                      UserLiveData.postValue(userData);
-
                  }
-
 
 
             }
@@ -77,4 +77,54 @@ public class UserRepository implements UserRepoInterface {
 
 
     }
+
+    // login ==============================================
+
+    private LoginResponse loginResponse;
+    private List<LoginUser> loginUser;
+    private MutableLiveData loginLiveData;
+
+    public MutableLiveData<List<LoginUser>> getLoginUserLiveData(){
+        return loginLiveData;
+    }
+
+    @Override
+    public void callApiForLogin(String email, String otp) {
+
+        if (loginLiveData == null){
+            loginLiveData = new MutableLiveData<>();
+        }
+
+        // create Retrofit Instance ---------------------
+        ApiServices apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
+        // call -----------------------
+        Call<LoginResponse> call = apiServices.getLoginUserData(email, otp);
+
+        // call api ----------------------
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+
+                Log.d("myLog", "onResponse: "+response.body());
+
+                if (response.isSuccessful()){
+                    loginResponse = response.body();
+                    loginUser = loginResponse.getUser();
+                    loginLiveData.postValue(loginUser);
+                }
+
+
+            }
+
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Log.d("myLog", "onFailure: api Login"+t.getMessage());
+            }
+        });
+
+
+    }
+
+
 }

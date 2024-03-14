@@ -7,21 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".View.Ui.MainActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="40dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="20dp"
         app:cardElevation="5dp"
@@ -104,6 +95,17 @@
                     android:drawablePadding="10dp"
                     android:minLines="1" />
 
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ProgressBar
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="20dp"
+                    android:id="@+id/progress_circular"
+                    android:layout_gravity="center"
+                    />
+
                 <Button
                     android:id="@+id/ButtonLogin"
                     android:layout_width="wrap_content"
@@ -115,7 +117,6 @@
                     android:text="Register"
                     android:textSize="20sp" />
 
-            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 

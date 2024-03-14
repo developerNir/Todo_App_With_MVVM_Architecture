@@ -1,20 +1,23 @@
 package com.example.mytodoapp.ViewModel;
 
 
-import android.app.Application;
+import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
 import com.example.mytodoapp.Service.Model.UserData;
 import com.example.mytodoapp.Service.Reposetory.UserRepository;
 
+import java.util.List;
+
 public class UserViewModel extends ViewModel {
 
     private final UserRepository userRepository;
+
+
 
     public UserViewModel() {
         super();
@@ -31,6 +34,18 @@ public class UserViewModel extends ViewModel {
         // this is returnable Live data get from Repository -------
         return userRepository.getLiveUserData();
     }
+
+    // login ====================================================
+
+    public void loginVerify(String email, String otp){
+        userRepository.callApiForLogin(email, otp);
+    }
+
+    public LiveData<List<LoginUser>> getLoginLiveData(){
+        Log.d("myLog", "getLoginLiveData: +"+userRepository.getLoginUserLiveData());
+        return userRepository.getLoginUserLiveData();
+    }
+
 
 
 

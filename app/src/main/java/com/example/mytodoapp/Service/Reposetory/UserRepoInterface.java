@@ -9,4 +9,8 @@ public interface UserRepoInterface {
 
     public void getUserInfoFromApi(RegisterRequestBody registerRequestBody);
 
+    public void callApiForLogin(String email, String otp);
+
+
+
 }
