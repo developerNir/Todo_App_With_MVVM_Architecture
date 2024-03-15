@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<group
+    android:id="@+id/group_One"
+    >
+    <item
+        android:title="My Todo"
+        android:icon="@drawable/three_dot_ic"
+        android:id="@+id/myTodoItem"
+        android:checkable="true"
+        />
+    <item
+        android:title="Developer Option"
+        android:icon="@drawable/developer_ic"
+        android:id="@+id/DeveloperItem"
+        android:checkable="true"
+        />
+    <item
+        android:title="Rate Us"
+        android:icon="@drawable/stars_ic"
+        android:id="@+id/StartReteItem"
+        android:checkable="true"
+        />
+
+</group>
+<group
+    android:id="@+id/group_Two"
+    >
+    <item
+        android:title="logout"
+        android:icon="@drawable/logout_ic"
+        android:id="@+id/logoutItem"
+        android:checkable="true"
+        />
+
+</group>
+</menu>
