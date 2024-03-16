@@ -53,7 +53,7 @@ public class AllTodoFragment extends Fragment {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
 
-        // Live data check and Null save ----------------------------
+        // Live data check and Null save --------------Login Model---------------------
         LiveData<List<LoginUser>> loginLiveData = userViewModel.getLoginLiveData();
         if (loginLiveData != null) {
             userViewModel.getLoginLiveData().observe((LifecycleOwner) getContext(), new Observer<List<LoginUser>>() {
@@ -68,7 +68,7 @@ public class AllTodoFragment extends Fragment {
         }
 
 
-        // get Token form View model --------------------------------
+        // get Token form View model ---------------------Register Model-----------
         LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
         if (tokenAndRegisterData !=null){
             userViewModel.getTokenWithRegister().observe(getViewLifecycleOwner(), new Observer<RegisterModel>() {
@@ -77,6 +77,8 @@ public class AllTodoFragment extends Fragment {
 
                     if (registerModel.getSuccess()){
                         textView.setText(registerModel.getToken());
+                        textView.append("\n"+registerModel.getUser().getEmail());
+
                         editor = sharedPreferences.edit();
                         editor.putString("token", registerModel.getToken());
                         editor.apply();

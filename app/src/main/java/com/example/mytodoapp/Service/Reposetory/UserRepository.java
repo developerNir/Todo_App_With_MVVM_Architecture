@@ -94,10 +94,15 @@ public class UserRepository implements UserRepoInterface {
 
     private LoginResponse loginResponse;
     private List<LoginUser> loginUser;
+    private MutableLiveData<LoginResponse> loginResponseMutableLiveData;
     private MutableLiveData loginLiveData;
 
     public MutableLiveData<List<LoginUser>> getLoginUserLiveData(){
         return loginLiveData;
+    }
+
+    public MutableLiveData<LoginResponse> getLoginResponseMutableLiveData(){
+        return loginResponseMutableLiveData;
     }
 
     @Override
@@ -106,6 +111,12 @@ public class UserRepository implements UserRepoInterface {
         if (loginLiveData == null){
             loginLiveData = new MutableLiveData<>();
         }
+
+        if (loginResponseMutableLiveData == null){
+            loginResponseMutableLiveData = new MutableLiveData<>();
+        }
+
+
 
         // create Retrofit Instance ---------------------
         ApiServices apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
@@ -121,6 +132,7 @@ public class UserRepository implements UserRepoInterface {
 
                 if (response.isSuccessful()){
                     loginResponse = response.body();
+                    loginResponseMutableLiveData.postValue(loginResponse);
                     loginUser = loginResponse.getUser();
                     loginLiveData.postValue(loginUser);
                 }

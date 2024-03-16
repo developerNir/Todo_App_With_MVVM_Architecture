@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
@@ -53,6 +54,9 @@ public class UserViewModel extends ViewModel {
         return userRepository.getLoginUserLiveData();
     }
 
+    public LiveData<LoginResponse> getloginResponseLiveData(){
+        return userRepository.getLoginResponseMutableLiveData();
+    }
 
 
 

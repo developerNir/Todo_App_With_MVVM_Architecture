@@ -1,6 +1,7 @@
 package com.example.mytodoapp.View.Ui;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.mytodoapp.R;
+import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.View.Ui.Fragment.AllTodoFragment;
@@ -40,7 +42,7 @@ import java.util.List;
 public class AppMainBody extends AppCompatActivity {
 
 
-
+    String token;
     NavigationView navigationView;
     FrameLayout frameLayout;
     MaterialToolbar materialToolbar;
@@ -52,7 +54,7 @@ public class AppMainBody extends AppCompatActivity {
 
 
 
-    TextView headText, headTextOtp;
+    TextView headText, headTextOtp, headTextEmail;
 
 
     @SuppressLint("MissingInflatedId")
@@ -81,6 +83,7 @@ public class AppMainBody extends AppCompatActivity {
         // header Text View -------------------------------
         headText = headerView.findViewById(R.id.textViewName);
         headTextOtp = headerView.findViewById(R.id.textViewOtp);
+        headTextEmail = headerView.findViewById(R.id.textViewEmail);
 
 
         // drawer Open and close --------------------------
@@ -133,10 +136,21 @@ public class AppMainBody extends AppCompatActivity {
                     Toast.makeText(AppMainBody.this, "Star Rete Item", Toast.LENGTH_SHORT).show();
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else if (menuItem.getItemId() == R.id.logoutItem) {
+
+                    // logout --------------------------------------------
+
+                    editor = sharedPreferences.edit();
+                    editor.clear();
+                    editor.commit();
+
+                    Log.d("myLog", "onNavigationItemSelected: "+token);
+                    if (token == null){
+                        startActivity(new Intent(AppMainBody.this, LoginMainActivity.class));
+                    }
+
+
                     Toast.makeText(AppMainBody.this, "LogOut Item", Toast.LENGTH_SHORT).show();
                     drawerLayout.closeDrawer(GravityCompat.START);
-                }else {
-                    return false;
                 }
 
                 // return false =don't select item ----------and return true = selected item
@@ -146,26 +160,26 @@ public class AppMainBody extends AppCompatActivity {
 
 
         // Live data Observer ---------------------------------
-
-        // introduce SharePreferences ---------------------------
-
-
         // view Model Provider set -------------------------------------
         userViewModel = new ViewModelProvider(AppMainBody.this).get(UserViewModel.class);
 
 
-        // Live data check and Null save ----------------------------
-        LiveData<List<LoginUser>> loginLiveData = userViewModel.getLoginLiveData();
-        if (loginLiveData != null) {
-            userViewModel.getLoginLiveData().observe(this, new Observer<List<LoginUser>>() {
+        // Live data check and Null save ----------Login Verify model------------------
+        LiveData<LoginResponse> loginResponseLiveData = userViewModel.getloginResponseLiveData();
+        if (loginResponseLiveData != null) {
+            userViewModel.getloginResponseLiveData().observe(this, new Observer<LoginResponse>() {
                 @Override
-                public void onChanged(List<LoginUser> loginUser) {
-                    Log.d("myLog", "Login Info == " + loginUser.get(0).getName());
-                    headText.setText(loginUser.get(0).getName());
-                    editor = sharedPreferences.edit();
-                    editor.putString("name", loginUser.get(0).getName());
-//                    editor.putString("token", registerModel.getToken());
-                    editor.apply();
+                public void onChanged(LoginResponse loginResponse) {
+
+                    if (loginResponse.getSuccess()) {
+                        editor = sharedPreferences.edit();
+                        editor.putString("name", loginResponse.getUser().get(0).getName());
+                        editor.putString("token", loginResponse.getToken());
+                        editor.putString("otp", loginResponse.getUser().get(0).getOtp());
+                        editor.putString("email", loginResponse.getUser().get(0).getEmail());
+                        editor.apply();
+                    }
+
                 }
             });
         }else {
@@ -173,7 +187,7 @@ public class AppMainBody extends AppCompatActivity {
         }
 
 
-        // get Token form View model --------------------------------
+        // get Token form View model ---- Register Model----------------------------
         LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
         if (tokenAndRegisterData !=null){
             userViewModel.getTokenWithRegister().observe(this, new Observer<RegisterModel>() {
@@ -181,9 +195,16 @@ public class AppMainBody extends AppCompatActivity {
                 public void onChanged(RegisterModel registerModel) {
 
                     if (registerModel.getSuccess()){
+
+                        headText.setText(registerModel.getUser().getName());
+                        headTextEmail.setText(registerModel.getUser().getEmail());
+                        headTextOtp.setText(registerModel.getUser().getOtp());
+
                         editor = sharedPreferences.edit();
                         editor.putString("name", registerModel.getUser().getName());
                         editor.putString("token", registerModel.getToken());
+                        editor.putString("otp", registerModel.getUser().getOtp());
+                        editor.putString("email", registerModel.getUser().getEmail());
                         editor.apply();
                     }
 
@@ -193,9 +214,18 @@ public class AppMainBody extends AppCompatActivity {
             });
         }
 
-        String token = sharedPreferences.getString("token", null);
+        // View Create Header View --------------------- and get data with SharePreference ---------------
+        token = sharedPreferences.getString("token", null);
+        String otp = sharedPreferences.getString("otp", null);
+        String name = sharedPreferences.getString("name", null);
+        String email = sharedPreferences.getString("email", null);
 
-        headTextOtp.setText(token);
+        // Header Text Set -------------------------------------
+        headTextOtp.setText(otp);
+        headText.setText(name);
+        headTextEmail.setText(email);
+
+
 
 
 
