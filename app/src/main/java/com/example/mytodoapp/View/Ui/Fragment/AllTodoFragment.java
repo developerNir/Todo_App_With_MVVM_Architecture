@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mytodoapp.R;
+import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.View.Ui.AppMainBody;
@@ -54,13 +55,13 @@ public class AllTodoFragment extends Fragment {
 
 
         // Live data check and Null save --------------Login Model---------------------
-        LiveData<List<LoginUser>> loginLiveData = userViewModel.getLoginLiveData();
+        LiveData<LoginResponse> loginLiveData = userViewModel.getloginResponseLiveData();
         if (loginLiveData != null) {
-            userViewModel.getLoginLiveData().observe((LifecycleOwner) getContext(), new Observer<List<LoginUser>>() {
+            userViewModel.getloginResponseLiveData().observe((LifecycleOwner) getContext(), new Observer<LoginResponse>() {
                 @Override
-                public void onChanged(List<LoginUser> loginUser) {
-                    Log.d("myLog", "Login Info == " + loginUser.get(0).getName());
-                    textView.setText(loginUser.get(0).getName());
+                public void onChanged(LoginResponse loginUser) {
+                    Log.d("myLog", "Login Info == " + loginUser);
+                    textView.setText(loginUser.getToken()+"\n"+loginUser.getSuccess());
                 }
             });
         }else {

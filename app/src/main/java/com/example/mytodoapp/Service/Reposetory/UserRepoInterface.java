@@ -11,6 +11,8 @@ public interface UserRepoInterface {
 
     public void callApiForLogin(String email, String otp);
 
+    public void UserAccountDelete(String token);
+
 
 
 }

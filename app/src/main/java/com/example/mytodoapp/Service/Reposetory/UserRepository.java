@@ -9,6 +9,7 @@ import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
 import com.example.mytodoapp.Service.Model.UserData;
+import com.example.mytodoapp.Service.Model.UserDeleteModel.DeleteUser;
 import com.example.mytodoapp.Service.Network.ApiServices;
 import com.example.mytodoapp.Service.Network.RetrofitInstance;
 
@@ -24,6 +25,7 @@ public class UserRepository implements UserRepoInterface {
     private static UserRepository userRepository;
     private RegisterModel registerModel;
     private UserData userData;
+    private ApiServices apiServices;
     private MutableLiveData<UserData> UserLiveData;
     private MutableLiveData<RegisterModel> RegisterDataWithToke;
 
@@ -63,7 +65,7 @@ public class UserRepository implements UserRepoInterface {
 
 
         // Api call --------------------------------------------
-        ApiServices apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
+        apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
         // get data use model Class ----------------------------
         Call<RegisterModel> call = apiServices.getRegisterUserData(registerRequestBody);
 
@@ -119,7 +121,7 @@ public class UserRepository implements UserRepoInterface {
 
 
         // create Retrofit Instance ---------------------
-        ApiServices apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
+         apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
         // call -----------------------
         Call<LoginResponse> call = apiServices.getLoginUserData(email, otp);
 
@@ -146,6 +148,51 @@ public class UserRepository implements UserRepoInterface {
                 Log.d("myLog", "onFailure: api Login"+t.getMessage());
             }
         });
+
+
+    }
+
+
+
+
+    // user Account Delete ------------------------------------------------
+
+    private MutableLiveData<DeleteUser> deleteUserLiveData;
+    private DeleteUser deleteUser;
+
+
+    public MutableLiveData<DeleteUser> getDeleteUser(){
+        return deleteUserLiveData;
+    }
+
+    @Override
+    public void UserAccountDelete(String token) {
+
+        if (deleteUserLiveData == null){
+            deleteUserLiveData = new MutableLiveData<>();
+        }
+
+        apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
+
+        Call<DeleteUser> call = apiServices.deleteUserProfile(token);
+
+        call.enqueue(new Callback<DeleteUser>() {
+            @Override
+            public void onResponse(Call<DeleteUser> call, Response<DeleteUser> response) {
+
+                Log.d("myLog", "onResponse: Api User Account delete"+response);
+                deleteUser = response.body();
+                deleteUserLiveData.postValue(deleteUser);
+
+
+            }
+
+            @Override
+            public void onFailure(Call<DeleteUser> call, Throwable t) {
+                Log.d("myLog", "onFailure: User Delete "+t.getMessage());
+            }
+        });
+
 
 
     }

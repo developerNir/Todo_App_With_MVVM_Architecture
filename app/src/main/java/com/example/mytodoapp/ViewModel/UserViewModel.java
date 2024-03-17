@@ -11,6 +11,7 @@ import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
 import com.example.mytodoapp.Service.Model.UserData;
+import com.example.mytodoapp.Service.Model.UserDeleteModel.DeleteUser;
 import com.example.mytodoapp.Service.Reposetory.UserRepository;
 
 import java.util.List;
@@ -56,6 +57,19 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<LoginResponse> getloginResponseLiveData(){
         return userRepository.getLoginResponseMutableLiveData();
+    }
+
+
+    // User Account delete -----------------------------------------
+
+    // Delete Response --------------------------------------------
+    public LiveData<DeleteUser> getDeleteUserAccount(){
+        return userRepository.getDeleteUser();
+    }
+
+    // delete Account ====================================
+    public void UserAccountDeleteApiCall(String token){
+        userRepository.UserAccountDelete(token);
     }
 
 

@@ -32,6 +32,7 @@ import com.example.mytodoapp.R;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
+import com.example.mytodoapp.Service.Model.UserDeleteModel.DeleteUser;
 import com.example.mytodoapp.View.Ui.Fragment.AllTodoFragment;
 import com.example.mytodoapp.ViewModel.UserViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -51,6 +52,7 @@ public class AppMainBody extends AppCompatActivity {
     View headerView;
     SharedPreferences.Editor editor;
     UserViewModel userViewModel;
+    DeleteUser deleteUser;
 
 
 
@@ -151,6 +153,38 @@ public class AppMainBody extends AppCompatActivity {
 
                     Toast.makeText(AppMainBody.this, "LogOut Item", Toast.LENGTH_SHORT).show();
                     drawerLayout.closeDrawer(GravityCompat.START);
+                } else if (menuItem.getItemId() ==R.id.AccountDeleteItem) {
+                    // User Account delete -----------------------------------------
+                    if (token!=null) {
+                        // delete User Account api call with view Model ---------------------
+                        userViewModel.UserAccountDeleteApiCall(token);
+                        // delete User data observer ---------------------------
+                        userViewModel.getDeleteUserAccount().observe(AppMainBody.this, new Observer<DeleteUser>() {
+                            @Override
+                            public void onChanged(DeleteUser deleteUser) {
+
+                                if (deleteUser.getSuccess()){
+
+                                    editor = sharedPreferences.edit();
+                                    editor.clear();
+                                    editor.commit();
+                                    Toast.makeText(AppMainBody.this, "Account Delete Successful \n"+deleteUser.getData().getName(), Toast.LENGTH_SHORT).show();
+
+                                    startActivity(new Intent(AppMainBody.this, MainActivity.class));
+
+
+                                }else {
+                                    Toast.makeText(AppMainBody.this, "Delete fail", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+                        });
+                    }else {
+                        Toast.makeText(AppMainBody.this, "Token is null", Toast.LENGTH_SHORT).show();
+                    }
+                    // live data Observer end ----------------------- delete account ----------
+
+                    drawerLayout.closeDrawer(GravityCompat.START);
                 }
 
                 // return false =don't select item ----------and return true = selected item
@@ -177,6 +211,7 @@ public class AppMainBody extends AppCompatActivity {
                         editor.putString("token", loginResponse.getToken());
                         editor.putString("otp", loginResponse.getUser().get(0).getOtp());
                         editor.putString("email", loginResponse.getUser().get(0).getEmail());
+                        editor.commit();
                         editor.apply();
                     }
 
@@ -205,6 +240,7 @@ public class AppMainBody extends AppCompatActivity {
                         editor.putString("token", registerModel.getToken());
                         editor.putString("otp", registerModel.getUser().getOtp());
                         editor.putString("email", registerModel.getUser().getEmail());
+                        editor.commit();
                         editor.apply();
                     }
 
