@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,12 +34,15 @@ import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.UserDeleteModel.DeleteUser;
+import com.example.mytodoapp.Service.SharePreferenceManager;
 import com.example.mytodoapp.View.Ui.Fragment.AllTodoFragment;
 import com.example.mytodoapp.ViewModel.UserViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AppMainBody extends AppCompatActivity {
 
@@ -52,7 +56,14 @@ public class AppMainBody extends AppCompatActivity {
     View headerView;
     SharedPreferences.Editor editor;
     UserViewModel userViewModel;
-    DeleteUser deleteUser;
+
+    // SharePre---------
+    String name, email, otp, TokenShare;
+    String otpShare,nameShare,emailShare;
+
+    // Model -------------------------
+    SharePreferenceManager sharePreferenceManager;
+
 
 
 
@@ -88,6 +99,7 @@ public class AppMainBody extends AppCompatActivity {
         headTextEmail = headerView.findViewById(R.id.textViewEmail);
 
 
+
         // drawer Open and close --------------------------
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 AppMainBody.this, drawerLayout, materialToolbar, R.string.CloseDrawer, R.string.OpenDrawer
@@ -96,10 +108,15 @@ public class AppMainBody extends AppCompatActivity {
         // Open drawer ------------------------
         drawerLayout.addDrawerListener(toggle);
 
+        sharePreferenceManager = new SharePreferenceManager(AppMainBody.this);
+
+
 
 
         //sharePreference introduce ------------------------
         sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
 
         // default Fragment --------------------------
         replaceFragment(new AllTodoFragment());
@@ -118,6 +135,13 @@ public class AppMainBody extends AppCompatActivity {
                 return false;
             }
         });
+
+        //View Create Header View --------------------- and get data with SharePreference ---------------
+        token = sharedPreferences.getString("token", null);
+        otpShare = sharedPreferences.getString("otp", null);
+        nameShare = sharedPreferences.getString("name", null);
+        emailShare = sharedPreferences.getString("email", null);
+
 
 
 
@@ -155,9 +179,9 @@ public class AppMainBody extends AppCompatActivity {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else if (menuItem.getItemId() ==R.id.AccountDeleteItem) {
                     // User Account delete -----------------------------------------
-                    if (token!=null) {
+                    if (TokenShare!=null) {
                         // delete User Account api call with view Model ---------------------
-                        userViewModel.UserAccountDeleteApiCall(token);
+                        userViewModel.UserAccountDeleteApiCall(TokenShare);
                         // delete User data observer ---------------------------
                         userViewModel.getDeleteUserAccount().observe(AppMainBody.this, new Observer<DeleteUser>() {
                             @Override
@@ -165,6 +189,8 @@ public class AppMainBody extends AppCompatActivity {
 
                                 if (deleteUser.getSuccess()){
 
+
+                                    Log.d("myLog", "onChanged: delete log"+TokenShare);
                                     editor = sharedPreferences.edit();
                                     editor.clear();
                                     editor.commit();
@@ -206,13 +232,27 @@ public class AppMainBody extends AppCompatActivity {
                 public void onChanged(LoginResponse loginResponse) {
 
                     if (loginResponse.getSuccess()) {
-                        editor = sharedPreferences.edit();
-                        editor.putString("name", loginResponse.getUser().get(0).getName());
-                        editor.putString("token", loginResponse.getToken());
-                        editor.putString("otp", loginResponse.getUser().get(0).getOtp());
-                        editor.putString("email", loginResponse.getUser().get(0).getEmail());
-                        editor.commit();
-                        editor.apply();
+//                        token = loginResponse.getToken();
+
+
+                        headText.setText(loginResponse.getUser().get(0).getName());
+                        headTextEmail.setText(loginResponse.getUser().get(0).getEmail());
+                        headTextOtp.setText(loginResponse.getUser().get(0).getOtp());
+
+                        if (token == null) {
+                            name = loginResponse.getUser().get(0).getName();
+                            TokenShare = loginResponse.getToken();
+                            otp = loginResponse.getUser().get(0).getOtp();
+                            email = loginResponse.getUser().get(0).getEmail();
+
+                            editor.putString("name", name);
+                            editor.putString("token", TokenShare);
+                            editor.putString("otp", otp);
+                            editor.putString("email", email);
+                            editor.apply();
+
+                        }
+
                     }
 
                 }
@@ -235,13 +275,20 @@ public class AppMainBody extends AppCompatActivity {
                         headTextEmail.setText(registerModel.getUser().getEmail());
                         headTextOtp.setText(registerModel.getUser().getOtp());
 
-                        editor = sharedPreferences.edit();
-                        editor.putString("name", registerModel.getUser().getName());
-                        editor.putString("token", registerModel.getToken());
-                        editor.putString("otp", registerModel.getUser().getOtp());
-                        editor.putString("email", registerModel.getUser().getEmail());
-                        editor.commit();
-                        editor.apply();
+                        if (token == null) {
+//                            token = registerModel.getToken();
+                            TokenShare = registerModel.getToken();
+                            name = registerModel.getUser().getName();
+                            email = registerModel.getUser().getEmail();
+                            otp = registerModel.getUser().getOtp();
+
+                            editor.putString("name", name);
+                            editor.putString("token", TokenShare);
+                            editor.putString("otp", otp);
+                            editor.putString("email", email);
+                            editor.apply();
+                        }
+
                     }
 
 
@@ -250,16 +297,26 @@ public class AppMainBody extends AppCompatActivity {
             });
         }
 
-        // View Create Header View --------------------- and get data with SharePreference ---------------
-        token = sharedPreferences.getString("token", null);
-        String otp = sharedPreferences.getString("otp", null);
-        String name = sharedPreferences.getString("name", null);
-        String email = sharedPreferences.getString("email", null);
+
+
+        // SharePreference Data add --------------------------------
+
+        editor.putString("name", name);
+        editor.putString("token", TokenShare);
+        editor.putString("otp", otp);
+        editor.putString("email", email);
+        editor.apply();
 
         // Header Text Set -------------------------------------
-        headTextOtp.setText(otp);
-        headText.setText(name);
-        headTextEmail.setText(email);
+        Log.d("myLog", "name email and otp token check \n"+nameShare+emailShare+otpShare+"\n"+token);
+
+        headTextOtp.setText(otpShare);
+        headText.setText(nameShare);
+        headTextEmail.setText(emailShare);
+
+
+
+
 
 
 
@@ -280,6 +337,10 @@ public class AppMainBody extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frameLayout, fragment);
         fragmentTransaction.commit();
+    }
+
+    private void ShareSave(){
+
     }
 
 

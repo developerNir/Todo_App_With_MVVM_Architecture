@@ -98,6 +98,7 @@ public class LoginMainActivity extends AppCompatActivity {
 
         textNextPageMove.setOnClickListener(view -> {
             startActivity(new Intent(LoginMainActivity.this, MainActivity.class));
+            finish();
         });
 
 

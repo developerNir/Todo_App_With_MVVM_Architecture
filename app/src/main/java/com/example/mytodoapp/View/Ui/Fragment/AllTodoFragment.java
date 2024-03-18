@@ -48,10 +48,11 @@ public class AllTodoFragment extends Fragment {
 
         // introduce SharePreferences ---------------------------
         sharedPreferences = getContext().getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-
+        editor = sharedPreferences.edit();
 
         // view Model Provider set -------------------------------------
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
 
 
         // Live data check and Null save --------------Login Model---------------------
@@ -62,6 +63,11 @@ public class AllTodoFragment extends Fragment {
                 public void onChanged(LoginResponse loginUser) {
                     Log.d("myLog", "Login Info == " + loginUser);
                     textView.setText(loginUser.getToken()+"\n"+loginUser.getSuccess());
+
+                    editor.putString("token", loginUser.getToken());
+                    editor.apply();
+
+
                 }
             });
         }else {
@@ -80,7 +86,7 @@ public class AllTodoFragment extends Fragment {
                         textView.setText(registerModel.getToken());
                         textView.append("\n"+registerModel.getUser().getEmail());
 
-                        editor = sharedPreferences.edit();
+
                         editor.putString("token", registerModel.getToken());
                         editor.apply();
                     }

@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
         loginPageTextBtn.setOnClickListener(view -> {
             startActivity(new Intent(MainActivity.this, LoginMainActivity.class));
+            finish();
         });
 
 
