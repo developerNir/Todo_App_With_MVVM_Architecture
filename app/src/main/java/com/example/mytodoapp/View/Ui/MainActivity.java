@@ -2,6 +2,7 @@ package com.example.mytodoapp.View.Ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,6 +22,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.mytodoapp.R;
+import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
 import com.example.mytodoapp.Service.Model.UserData;
 import com.example.mytodoapp.ViewModel.UserViewModel;
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     Button loginButton;
     TextInputLayout nameInputLayout, passwordInputLayout, emailInputLayout;
     TextInputEditText nameEdText, passwordEdText, emailEdText;
+
+    SharedPreferences sharedPreferences;
 
 
     @SuppressLint("MissingInflatedId")
@@ -127,14 +131,25 @@ public class MainActivity extends AppCompatActivity {
     public void UiDataObserverSet(){
         // view mode Observer set ----------------------------
         // live data create a Variable ------------------------
-        LiveData<UserData> myLiveData = userViewModel.getLiveData();
+        LiveData<RegisterModel> myLiveData = userViewModel.getTokenWithRegister();
         // null pinter manage ------------------------------
         if (myLiveData!=null) {
-            userViewModel.getLiveData().observe(this, new Observer<UserData>() {
+            userViewModel.getTokenWithRegister().observe(this, new Observer<RegisterModel>() {
                 @Override
-                public void onChanged(UserData userData) {
+                public void onChanged(RegisterModel registerModel) {
                     progressBar.setVisibility(View.GONE);
-                    if (userData.getId().length() > 0) {
+                    if (registerModel.getSuccess()) {
+
+                        sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("token", registerModel.getToken());
+                        editor.putString("name", registerModel.getUser().getName());
+                        editor.putString("otp", registerModel.getUser().getOtp());
+                        editor.putString("email", registerModel.getUser().getEmail());
+                        editor.apply();
+
+
 
                         Toast.makeText(MainActivity.this, "Register Success", Toast.LENGTH_SHORT).show();
                         // change Activity -----------------------------------------

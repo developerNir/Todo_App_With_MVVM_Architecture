@@ -2,6 +2,7 @@ package com.example.mytodoapp.View.Ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,7 +22,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.mytodoapp.R;
+import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginUser;
+import com.example.mytodoapp.Service.SharePreferenceManager;
 import com.example.mytodoapp.ViewModel.UserViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -36,6 +39,8 @@ public class LoginMainActivity extends AppCompatActivity {
     TextInputEditText emailEdText, otpEdText;
     TextInputLayout EmailInputLayout, OtpInputLayout;
     ProgressBar progressBar;
+
+    SharedPreferences sharedPreferences;
 
 
 
@@ -111,17 +116,27 @@ public class LoginMainActivity extends AppCompatActivity {
     // OnCreate End =========================================
 
     public void setObserver(){
-        LiveData<List<LoginUser>> loginLiveData = userViewModel.getLoginLiveData();
+        LiveData<LoginResponse> loginLiveData = userViewModel.getloginResponseLiveData();
         if (loginLiveData!=null) {
 
-            userViewModel.getLoginLiveData().observe(this, new Observer<List<LoginUser>>() {
+            userViewModel.getloginResponseLiveData().observe(this, new Observer<LoginResponse>() {
                 @Override
-                public void onChanged(List<LoginUser> loginUser) {
+                public void onChanged(LoginResponse loginResponse) {
 
-                    Log.d("myLog", "live Data login User==== " + loginUser.get(0).getName());
-                    if (loginUser.get(0).getId().length() > 0) {
+                    Log.d("myLog", "live Data login User==== " +loginResponse.getToken());
+                    if (loginResponse.getSuccess()) {
                         progressBar.setVisibility(View.GONE);
-                        textView.setText(loginUser.get(0).getName());
+                        sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("token", loginResponse.getToken());
+                        editor.putString("name", loginResponse.getUser().get(0).getName());
+                        editor.putString("otp", loginResponse.getUser().get(0).getOtp());
+                        editor.putString("email", loginResponse.getUser().get(0).getEmail());
+                        editor.apply();
+
+
+
                         Toast.makeText(LoginMainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(LoginMainActivity.this, AppMainBody.class));
                         finish();

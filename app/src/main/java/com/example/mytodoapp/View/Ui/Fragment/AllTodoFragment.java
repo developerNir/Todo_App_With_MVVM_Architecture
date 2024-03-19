@@ -48,54 +48,54 @@ public class AllTodoFragment extends Fragment {
 
         // introduce SharePreferences ---------------------------
         sharedPreferences = getContext().getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-        editor = sharedPreferences.edit();
+       // editor = sharedPreferences.edit();
 
         // view Model Provider set -------------------------------------
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        //userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
 
 
         // Live data check and Null save --------------Login Model---------------------
-        LiveData<LoginResponse> loginLiveData = userViewModel.getloginResponseLiveData();
-        if (loginLiveData != null) {
-            userViewModel.getloginResponseLiveData().observe((LifecycleOwner) getContext(), new Observer<LoginResponse>() {
-                @Override
-                public void onChanged(LoginResponse loginUser) {
-                    Log.d("myLog", "Login Info == " + loginUser);
-                    textView.setText(loginUser.getToken()+"\n"+loginUser.getSuccess());
-
-                    editor.putString("token", loginUser.getToken());
-                    editor.apply();
-
-
-                }
-            });
-        }else {
-            Toast.makeText(getContext(), "Live data is null", Toast.LENGTH_SHORT).show();
-        }
+//        LiveData<LoginResponse> loginLiveData = userViewModel.getloginResponseLiveData();
+//        if (loginLiveData != null) {
+//            userViewModel.getloginResponseLiveData().observe((LifecycleOwner) getContext(), new Observer<LoginResponse>() {
+//                @Override
+//                public void onChanged(LoginResponse loginUser) {
+//                    Log.d("myLog", "Login Info == " + loginUser);
+//                    textView.setText(loginUser.getToken()+"\n"+loginUser.getSuccess());
+//
+//                    editor.putString("token", loginUser.getToken());
+//                    editor.apply();
+//
+//
+//                }
+//            });
+//        }else {
+//            Toast.makeText(getContext(), "Live data is null", Toast.LENGTH_SHORT).show();
+//        }
 
 
         // get Token form View model ---------------------Register Model-----------
-        LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
-        if (tokenAndRegisterData !=null){
-            userViewModel.getTokenWithRegister().observe(getViewLifecycleOwner(), new Observer<RegisterModel>() {
-                @Override
-                public void onChanged(RegisterModel registerModel) {
-
-                    if (registerModel.getSuccess()){
-                        textView.setText(registerModel.getToken());
-                        textView.append("\n"+registerModel.getUser().getEmail());
-
-
-                        editor.putString("token", registerModel.getToken());
-                        editor.apply();
-                    }
-
-
-
-                }
-            });
-        }
+//        LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
+//        if (tokenAndRegisterData !=null){
+//            userViewModel.getTokenWithRegister().observe(getViewLifecycleOwner(), new Observer<RegisterModel>() {
+//                @Override
+//                public void onChanged(RegisterModel registerModel) {
+//
+//                    if (registerModel.getSuccess()){
+//                        textView.setText(registerModel.getToken());
+//                        textView.append("\n"+registerModel.getUser().getEmail());
+//
+//
+//                        editor.putString("token", registerModel.getToken());
+//                        editor.apply();
+//                    }
+//
+//
+//
+//                }
+//            });
+//        }
 
 
 

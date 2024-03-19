@@ -47,7 +47,6 @@ import java.util.Set;
 public class AppMainBody extends AppCompatActivity {
 
 
-    String token;
     NavigationView navigationView;
     FrameLayout frameLayout;
     MaterialToolbar materialToolbar;
@@ -58,8 +57,7 @@ public class AppMainBody extends AppCompatActivity {
     UserViewModel userViewModel;
 
     // SharePre---------
-    String name, email, otp, TokenShare;
-    String otpShare,nameShare,emailShare;
+    String name, email, otp, token;
 
     // Model -------------------------
     SharePreferenceManager sharePreferenceManager;
@@ -121,6 +119,8 @@ public class AppMainBody extends AppCompatActivity {
         // default Fragment --------------------------
         replaceFragment(new AllTodoFragment());
 
+        userViewModel = new ViewModelProvider(AppMainBody.this).get(UserViewModel.class);
+
 
         // tool bar item select -----------------------------------
         materialToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -138,9 +138,9 @@ public class AppMainBody extends AppCompatActivity {
 
         //View Create Header View --------------------- and get data with SharePreference ---------------
         token = sharedPreferences.getString("token", null);
-        otpShare = sharedPreferences.getString("otp", null);
-        nameShare = sharedPreferences.getString("name", null);
-        emailShare = sharedPreferences.getString("email", null);
+        otp = sharedPreferences.getString("otp", null);
+        name = sharedPreferences.getString("name", null);
+        email = sharedPreferences.getString("email", null);
 
 
 
@@ -167,21 +167,21 @@ public class AppMainBody extends AppCompatActivity {
 
                     editor = sharedPreferences.edit();
                     editor.clear();
-                    editor.commit();
+                    editor.apply();
 
                     Log.d("myLog", "onNavigationItemSelected: "+token);
-                    if (token == null){
-                        startActivity(new Intent(AppMainBody.this, LoginMainActivity.class));
-                    }
+
+                    startActivity(new Intent(AppMainBody.this, LoginMainActivity.class));
+
 
 
                     Toast.makeText(AppMainBody.this, "LogOut Item", Toast.LENGTH_SHORT).show();
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else if (menuItem.getItemId() ==R.id.AccountDeleteItem) {
                     // User Account delete -----------------------------------------
-                    if (TokenShare!=null) {
+                    if (token!=null) {
                         // delete User Account api call with view Model ---------------------
-                        userViewModel.UserAccountDeleteApiCall(TokenShare);
+                        userViewModel.UserAccountDeleteApiCall(token);
                         // delete User data observer ---------------------------
                         userViewModel.getDeleteUserAccount().observe(AppMainBody.this, new Observer<DeleteUser>() {
                             @Override
@@ -190,13 +190,15 @@ public class AppMainBody extends AppCompatActivity {
                                 if (deleteUser.getSuccess()){
 
 
-                                    Log.d("myLog", "onChanged: delete log"+TokenShare);
+                                    Log.d("myLog", "onChanged: delete log"+token);
                                     editor = sharedPreferences.edit();
                                     editor.clear();
-                                    editor.commit();
+                                    editor.apply();
+
                                     Toast.makeText(AppMainBody.this, "Account Delete Successful \n"+deleteUser.getData().getName(), Toast.LENGTH_SHORT).show();
 
                                     startActivity(new Intent(AppMainBody.this, MainActivity.class));
+                                    finish();
 
 
                                 }else {
@@ -221,98 +223,93 @@ public class AppMainBody extends AppCompatActivity {
 
         // Live data Observer ---------------------------------
         // view Model Provider set -------------------------------------
-        userViewModel = new ViewModelProvider(AppMainBody.this).get(UserViewModel.class);
+//        userViewModel = new ViewModelProvider(AppMainBody.this).get(UserViewModel.class);
 
 
         // Live data check and Null save ----------Login Verify model------------------
-        LiveData<LoginResponse> loginResponseLiveData = userViewModel.getloginResponseLiveData();
-        if (loginResponseLiveData != null) {
-            userViewModel.getloginResponseLiveData().observe(this, new Observer<LoginResponse>() {
-                @Override
-                public void onChanged(LoginResponse loginResponse) {
-
-                    if (loginResponse.getSuccess()) {
-//                        token = loginResponse.getToken();
-
-
-                        headText.setText(loginResponse.getUser().get(0).getName());
-                        headTextEmail.setText(loginResponse.getUser().get(0).getEmail());
-                        headTextOtp.setText(loginResponse.getUser().get(0).getOtp());
-
-                        if (token == null) {
-                            name = loginResponse.getUser().get(0).getName();
-                            TokenShare = loginResponse.getToken();
-                            otp = loginResponse.getUser().get(0).getOtp();
-                            email = loginResponse.getUser().get(0).getEmail();
-
-                            editor.putString("name", name);
-                            editor.putString("token", TokenShare);
-                            editor.putString("otp", otp);
-                            editor.putString("email", email);
-                            editor.apply();
-
-                        }
-
-                    }
-
-                }
-            });
-        }else {
-            Toast.makeText(this, "Live data is null", Toast.LENGTH_SHORT).show();
-        }
+//        LiveData<LoginResponse> loginResponseLiveData = userViewModel.getloginResponseLiveData();
+//        if (loginResponseLiveData != null) {
+//            userViewModel.getloginResponseLiveData().observe(this, new Observer<LoginResponse>() {
+//                @Override
+//                public void onChanged(LoginResponse loginResponse) {
+//
+//                    if (loginResponse.getSuccess()) {
+////                        token = loginResponse.getToken();
+//
+//
+//                        headText.setText(loginResponse.getUser().get(0).getName());
+//                        headTextEmail.setText(loginResponse.getUser().get(0).getEmail());
+//                        headTextOtp.setText(loginResponse.getUser().get(0).getOtp());
+//
+//                        if (token == null) {
+//                            name = loginResponse.getUser().get(0).getName();
+//                            TokenShare = loginResponse.getToken();
+//                            otp = loginResponse.getUser().get(0).getOtp();
+//                            email = loginResponse.getUser().get(0).getEmail();
+//
+//                            editor.putString("name", name);
+//                            editor.putString("token", TokenShare);
+//                            editor.putString("otp", otp);
+//                            editor.putString("email", email);
+//                            editor.apply();
+//
+//                        }
+//
+//                    }
+//
+//                }
+//            });
+//        }else {
+//            Toast.makeText(this, "Live data is null", Toast.LENGTH_SHORT).show();
+//        }
 
 
         // get Token form View model ---- Register Model----------------------------
-        LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
-        if (tokenAndRegisterData !=null){
-            userViewModel.getTokenWithRegister().observe(this, new Observer<RegisterModel>() {
-                @Override
-                public void onChanged(RegisterModel registerModel) {
-
-                    if (registerModel.getSuccess()){
-
-                        headText.setText(registerModel.getUser().getName());
-                        headTextEmail.setText(registerModel.getUser().getEmail());
-                        headTextOtp.setText(registerModel.getUser().getOtp());
-
-                        if (token == null) {
-//                            token = registerModel.getToken();
-                            TokenShare = registerModel.getToken();
-                            name = registerModel.getUser().getName();
-                            email = registerModel.getUser().getEmail();
-                            otp = registerModel.getUser().getOtp();
-
-                            editor.putString("name", name);
-                            editor.putString("token", TokenShare);
-                            editor.putString("otp", otp);
-                            editor.putString("email", email);
-                            editor.apply();
-                        }
-
-                    }
-
-
-
-                }
-            });
-        }
+//        LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
+//        if (tokenAndRegisterData !=null){
+//            userViewModel.getTokenWithRegister().observe(this, new Observer<RegisterModel>() {
+//                @Override
+//                public void onChanged(RegisterModel registerModel) {
+//
+//                    if (registerModel.getSuccess()){
+//
+//                        headText.setText(registerModel.getUser().getName());
+//                        headTextEmail.setText(registerModel.getUser().getEmail());
+//                        headTextOtp.setText(registerModel.getUser().getOtp());
+//
+//                        if (token == null) {
+////                            token = registerModel.getToken();
+//                            TokenShare = registerModel.getToken();
+//                            name = registerModel.getUser().getName();
+//                            email = registerModel.getUser().getEmail();
+//                            otp = registerModel.getUser().getOtp();
+//
+//                            editor.putString("name", name);
+//                            editor.putString("token", TokenShare);
+//                            editor.putString("otp", otp);
+//                            editor.putString("email", email);
+//                            editor.apply();
+//                        }
+//
+//                    }
+//
+//
+//
+//                }
+//            });
+//        }
 
 
 
         // SharePreference Data add --------------------------------
 
-        editor.putString("name", name);
-        editor.putString("token", TokenShare);
-        editor.putString("otp", otp);
-        editor.putString("email", email);
-        editor.apply();
 
         // Header Text Set -------------------------------------
-        Log.d("myLog", "name email and otp token check \n"+nameShare+emailShare+otpShare+"\n"+token);
+        Log.d("myLog", "name email and otp token check \n"+name+email+otp+"\n"+token);
 
-        headTextOtp.setText(otpShare);
-        headText.setText(nameShare);
-        headTextEmail.setText(emailShare);
+        headTextOtp.setText(otp);
+        headText.setText(name);
+        headTextEmail.setText(email);
 
 
 
