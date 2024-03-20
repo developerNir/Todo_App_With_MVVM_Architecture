@@ -183,30 +183,36 @@ public class AppMainBody extends AppCompatActivity {
                         // delete User Account api call with view Model ---------------------
                         userViewModel.UserAccountDeleteApiCall(token);
                         // delete User data observer ---------------------------
-                        userViewModel.getDeleteUserAccount().observe(AppMainBody.this, new Observer<DeleteUser>() {
-                            @Override
-                            public void onChanged(DeleteUser deleteUser) {
+                        LiveData<DeleteUser> myDeleteData = userViewModel.getDeleteUserAccount();
+                        if (myDeleteData !=null) {
 
-                                if (deleteUser.getSuccess()){
+                            userViewModel.getDeleteUserAccount().observe(AppMainBody.this, new Observer<DeleteUser>() {
+                                @Override
+                                public void onChanged(DeleteUser deleteUser) {
 
-
-                                    Log.d("myLog", "onChanged: delete log"+token);
-                                    editor = sharedPreferences.edit();
-                                    editor.clear();
-                                    editor.apply();
-
-                                    Toast.makeText(AppMainBody.this, "Account Delete Successful \n"+deleteUser.getData().getName(), Toast.LENGTH_SHORT).show();
-
-                                    startActivity(new Intent(AppMainBody.this, MainActivity.class));
-                                    finish();
+                                    if (deleteUser.getSuccess()) {
 
 
-                                }else {
-                                    Toast.makeText(AppMainBody.this, "Delete fail", Toast.LENGTH_SHORT).show();
+                                        Log.d("myLog", "onChanged: delete log" + token);
+                                        editor = sharedPreferences.edit();
+                                        editor.clear();
+                                        editor.apply();
+
+                                        Toast.makeText(AppMainBody.this, "Account Delete Successful \n" + deleteUser.getData().getName(), Toast.LENGTH_SHORT).show();
+
+                                        startActivity(new Intent(AppMainBody.this, MainActivity.class));
+                                        finish();
+
+
+                                    } else {
+                                        Toast.makeText(AppMainBody.this, "Delete fail " + deleteUser.getSuccess(), Toast.LENGTH_SHORT).show();
+                                    }
+
                                 }
-
-                            }
-                        });
+                            });
+                        }else {
+                            Toast.makeText(AppMainBody.this, "UserNot delete", Toast.LENGTH_SHORT).show();
+                        }
                     }else {
                         Toast.makeText(AppMainBody.this, "Token is null", Toast.LENGTH_SHORT).show();
                     }
@@ -221,92 +227,7 @@ public class AppMainBody extends AppCompatActivity {
         });
 
 
-        // Live data Observer ---------------------------------
-        // view Model Provider set -------------------------------------
-//        userViewModel = new ViewModelProvider(AppMainBody.this).get(UserViewModel.class);
-
-
-        // Live data check and Null save ----------Login Verify model------------------
-//        LiveData<LoginResponse> loginResponseLiveData = userViewModel.getloginResponseLiveData();
-//        if (loginResponseLiveData != null) {
-//            userViewModel.getloginResponseLiveData().observe(this, new Observer<LoginResponse>() {
-//                @Override
-//                public void onChanged(LoginResponse loginResponse) {
-//
-//                    if (loginResponse.getSuccess()) {
-////                        token = loginResponse.getToken();
-//
-//
-//                        headText.setText(loginResponse.getUser().get(0).getName());
-//                        headTextEmail.setText(loginResponse.getUser().get(0).getEmail());
-//                        headTextOtp.setText(loginResponse.getUser().get(0).getOtp());
-//
-//                        if (token == null) {
-//                            name = loginResponse.getUser().get(0).getName();
-//                            TokenShare = loginResponse.getToken();
-//                            otp = loginResponse.getUser().get(0).getOtp();
-//                            email = loginResponse.getUser().get(0).getEmail();
-//
-//                            editor.putString("name", name);
-//                            editor.putString("token", TokenShare);
-//                            editor.putString("otp", otp);
-//                            editor.putString("email", email);
-//                            editor.apply();
-//
-//                        }
-//
-//                    }
-//
-//                }
-//            });
-//        }else {
-//            Toast.makeText(this, "Live data is null", Toast.LENGTH_SHORT).show();
-//        }
-
-
-        // get Token form View model ---- Register Model----------------------------
-//        LiveData<RegisterModel> tokenAndRegisterData = userViewModel.getTokenWithRegister();
-//        if (tokenAndRegisterData !=null){
-//            userViewModel.getTokenWithRegister().observe(this, new Observer<RegisterModel>() {
-//                @Override
-//                public void onChanged(RegisterModel registerModel) {
-//
-//                    if (registerModel.getSuccess()){
-//
-//                        headText.setText(registerModel.getUser().getName());
-//                        headTextEmail.setText(registerModel.getUser().getEmail());
-//                        headTextOtp.setText(registerModel.getUser().getOtp());
-//
-//                        if (token == null) {
-////                            token = registerModel.getToken();
-//                            TokenShare = registerModel.getToken();
-//                            name = registerModel.getUser().getName();
-//                            email = registerModel.getUser().getEmail();
-//                            otp = registerModel.getUser().getOtp();
-//
-//                            editor.putString("name", name);
-//                            editor.putString("token", TokenShare);
-//                            editor.putString("otp", otp);
-//                            editor.putString("email", email);
-//                            editor.apply();
-//                        }
-//
-//                    }
-//
-//
-//
-//                }
-//            });
-//        }
-
-
-
-        // SharePreference Data add --------------------------------
-
-
-        // Header Text Set -------------------------------------
-        Log.d("myLog", "name email and otp token check \n"+name+email+otp+"\n"+token);
-
+        // add text profile section --------------------------
         headTextOtp.setText(otp);
         headText.setText(name);
         headTextEmail.setText(email);
@@ -336,9 +257,6 @@ public class AppMainBody extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    private void ShareSave(){
-
-    }
 
 
 }

@@ -3,6 +3,8 @@ package com.example.mytodoapp.Service.Network;
 import com.example.mytodoapp.Service.Model.LoginModel.LoginResponse;
 import com.example.mytodoapp.Service.Model.RegisterModel;
 import com.example.mytodoapp.Service.Model.RegisterRequestBody;
+import com.example.mytodoapp.Service.Model.TodoModel.TodoCreate;
+import com.example.mytodoapp.Service.Model.TodoModel.TodoCreateResponse;
 import com.example.mytodoapp.Service.Model.UserDeleteModel.DeleteUser;
 
 import retrofit2.Call;
@@ -16,9 +18,8 @@ import retrofit2.http.Path;
 
 public interface ApiServices {
 
-    @GET("register")
-    Call<RegisterModel> getAllUserData();
 
+    // User Api ================================call =============
     // Register -------------------------------------------
     @POST("register")
     Call<RegisterModel> getRegisterUserData(@Body RegisterRequestBody registerRequestBody);
@@ -30,6 +31,12 @@ public interface ApiServices {
     // user profile delete -------------------------------
     @DELETE("user-delete")
     Call<DeleteUser> deleteUserProfile(@Header("Authorization") String AuthorizationToken);
+
+
+
+    //Todo api call =================================================
+    @POST("todo-create")
+    Call<TodoCreateResponse> createTodo(@Header("Authorization") String AuthorizationToken, @Body TodoCreate todoCreate);
 
 
 }
