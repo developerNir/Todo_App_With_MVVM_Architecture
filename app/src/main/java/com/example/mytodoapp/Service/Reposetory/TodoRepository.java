@@ -5,10 +5,16 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.mytodoapp.Service.Model.TodoModel.AllTodoArrayData;
+import com.example.mytodoapp.Service.Model.TodoModel.AllTodoData;
+import com.example.mytodoapp.Service.Model.TodoModel.AllTodoResponse;
+import com.example.mytodoapp.Service.Model.TodoModel.DeleteModel.TodoDeleteModel;
 import com.example.mytodoapp.Service.Model.TodoModel.TodoCreate;
 import com.example.mytodoapp.Service.Model.TodoModel.TodoCreateResponse;
 import com.example.mytodoapp.Service.Network.ApiServices;
 import com.example.mytodoapp.Service.Network.RetrofitInstance;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -76,7 +82,97 @@ public class TodoRepository implements TodoRepositoryInterface{
     }
 
 
+    // Get all todo list ===================================================
 
+    private MutableLiveData<List<AllTodoData>> allTodoResponseMutableLiveData;
+
+    public AllTodoResponse allTodoResponse;
+    private List<AllTodoData> allTodoData;
+    private AllTodoArrayData allTodoArrayData;
+
+    // todo response live data all todo ----------------------------------
+    public MutableLiveData<List<AllTodoData>> getAllTodoResponseMutableLiveData() {
+        return allTodoResponseMutableLiveData;
+    }
+
+    // all todo api call method ----------------------------------------
+    @Override
+    public void getAllTodoList(String token) {
+
+        if (allTodoResponseMutableLiveData== null){
+            allTodoResponseMutableLiveData = new MutableLiveData<>();
+        }
+
+        apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
+
+        Call<AllTodoResponse>call = apiServices.getAllTodo(token);
+        call.enqueue(new Callback<AllTodoResponse>() {
+            @Override
+            public void onResponse(Call<AllTodoResponse> call, Response<AllTodoResponse> response) {
+
+                Log.d("myLog", "onResponse: get all todo "+response.body());
+                if (response.isSuccessful()){
+                    allTodoResponse = response.body();
+                    allTodoArrayData = allTodoResponse.getData();
+                    allTodoData = allTodoArrayData.getAllTodo();
+                    allTodoResponseMutableLiveData.postValue(allTodoData);
+                }else {
+                    Log.d("myLog", "onResponse: get api todo all call fail "+response);
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<AllTodoResponse> call, Throwable t) {
+
+                Log.d("myLog", "onFailure: get all todo api "+t.getMessage());
+
+            }
+        });
+
+    }
+
+    // Todo delete ====================== Delete Api call ======================
+
+    private TodoDeleteModel todoDeleteModel;
+    private MutableLiveData<TodoDeleteModel> deleteModelMutableLiveData;
+
+    public MutableLiveData<TodoDeleteModel> getResponseDeleteTodo(){
+        return deleteModelMutableLiveData;
+    }
+
+    public void deleteTodoApiCall( String token ,String id){
+        if (deleteModelMutableLiveData == null){
+            deleteModelMutableLiveData = new MutableLiveData<>();
+        }
+
+
+        apiServices = RetrofitInstance.getRetrofitInstance().create(ApiServices.class);
+
+        Call<TodoDeleteModel> call = apiServices.deleteTodo(token, id);
+
+        call.enqueue(new Callback<TodoDeleteModel>() {
+            @Override
+            public void onResponse(Call<TodoDeleteModel> call, Response<TodoDeleteModel> response) {
+
+                if (response.isSuccessful()) {
+                    todoDeleteModel = response.body();
+
+                    deleteModelMutableLiveData.postValue(todoDeleteModel);
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<TodoDeleteModel> call, Throwable t) {
+                Log.d("myLog", "onFailure: Todo Delete api call "+t.getMessage());
+            }
+        });
+
+
+
+    }
 
 
 

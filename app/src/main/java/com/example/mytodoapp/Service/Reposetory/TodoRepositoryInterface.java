@@ -6,6 +6,7 @@ public interface TodoRepositoryInterface {
 
 
     public void createTodo(String token, TodoCreate todoCreate);
+    public void getAllTodoList(String token);
 
 
 }
